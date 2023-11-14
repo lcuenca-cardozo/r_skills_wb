@@ -607,10 +607,7 @@ Ignoring unknown parameters: `yintercept`</code></pre>
 <span id="cb70-36"><a href="#cb70-36" aria-hidden="true" tabindex="-1"></a>      lorenz_weight[j]  <span class="ot">&lt;-</span> cum_weight <span class="sc">/</span> sum_weights           <span class="co"># Normalize cum_weight</span></span>
 <span id="cb70-37"><a href="#cb70-37" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb70-38"><a href="#cb70-38" aria-hidden="true" tabindex="-1"></a>      j <span class="ot">=</span> j <span class="sc">+</span> <span class="dv">1</span></span>
-<span id="cb70-39"><a href="#cb70-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># METHODOLOGY QUESTION: Should this hard coded 0.9999 be changed?</span></span>
-<span id="cb70-40"><a href="#cb70-40" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Not sure why it is here... Most likely to handle some edge case. I tested</span></span>
-<span id="cb70-41"><a href="#cb70-41" aria-hidden="true" tabindex="-1"></a>      <span class="co"># the code without it, and it worked fine...</span></span>
-<span id="cb70-42"><a href="#cb70-42" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (j <span class="sc">&lt;=</span> nbins) {next_level <span class="ot">&lt;-</span> welfare_step <span class="sc">*</span> j <span class="sc">*</span> <span class="fl">0.999999999</span>}</span>
+<span id="cb70-39"><a href="#cb70-39" aria-hidden="true" tabindex="-1"></a>      
 <span id="cb70-43"><a href="#cb70-43" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb70-44"><a href="#cb70-44" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb70-45"><a href="#cb70-45" aria-hidden="true" tabindex="-1"></a></span>
