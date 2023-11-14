@@ -275,7 +275,7 @@ The [Lorenz curve](https://en.wikipedia.org/wiki/Lorenz_curve) is a well-known r
 
 ```{r}
 
-#adapted from: https://github.com/PIP-Technical-Team/wbpip/blob/0cf9aa7bc168400ecf78ae5455f4c4247b841e9d/R/md_compute_lorenz.R
+# LC and Gini formula adapted from: https://github.com/PIP-Technical-Team/wbpip/blob/0cf9aa7bc168400ecf78ae5455f4c4247b841e9d/R/md_compute_lorenz.R
 
 data_lc <- survey_data
 
@@ -313,9 +313,7 @@ md_compute_lorenz <- function(welfare, weight, nbins = NULL) {
       lorenz_weight[j]  <- cum_weight / sum_weights           # Normalize cum_weight
 
       j = j + 1
-      # METHODOLOGY QUESTION: Should this hard coded 0.9999 be changed?
-      # Not sure why it is here... Most likely to handle some edge case. I tested
-      # the code without it, and it worked fine...
+      
       if (j <= nbins) {next_level <- welfare_step * j * 0.999999999}
     }
   }
@@ -396,3 +394,4 @@ extra4 <- ggplot(results_gini, aes(x = year, y = Gini)) +
 
 print(extra4)
 ```
+quarto publish gh-pages document.qmd
