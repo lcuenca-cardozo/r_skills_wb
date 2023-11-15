@@ -3,10 +3,12 @@ title: "R_test_GPID_LC"
 author: "lbcc"
 format: html
 editor: visual
+df_print: paged
 ---
 
-```{r}
+```{r,warning=FALSE,message=FALSE}
 #Load packages
+
 library(dplyr)
 library(tidyr)
 library(Hmisc) #to calculate weighted mean
@@ -16,6 +18,8 @@ library(robsurvey) #to calculate weighted median
 library(ggplot2)
 library(purrr)
 library(stargazer)
+library(knitr)
+library(rmarkdown)
 ```
 
 ## Basic Stats
@@ -41,13 +45,11 @@ This table shows some stats of GDP per capita by region and year. Total number o
 data <- 
   readr::read_rds(paste0(data_url, "wdi_in1.Rds"))
   #readr::read_rds(paste0(data_url, "wdi_summ_out.Rds"))
-
 ```
 
 ### Creating population weights function
 
 ```{r}
-
 wdata <- data %>%
   group_by(date) %>%
   #filter(!is.na(gdp)) %>% 
@@ -62,7 +64,6 @@ summary(wdata$pop) #Checking for NAs
 # wdata = wdata %>% #Checking for outliers
 #   mutate(outlier = ifelse(gdp > quantile(wdata$gdp, probs = 0.99, na.rm = T), 1, 0))
  
-
 wdata2 <- wdata %>% 
   group_by(region, date) %>%
   #filter(!is.na(gdp)) %>% 
@@ -76,12 +77,13 @@ wdata2 <- wdata %>%
     Max = max(gdp)
   )
 
-
 # Round all numeric columns in wdata
 wdata2 <- wdata2 %>% 
   mutate_if(is.numeric, ~ round(., digits = 0))
 
-print(wdata2)
+# print(wdata2)
+
+rmarkdown:::paged_table(wdata2)
 
 
 ```
@@ -91,8 +93,6 @@ print(wdata2)
 Aggregate the `lifeex`, `gdp`, and `pov_intl` variables by `region` and `date`, using the mean, standard deviation, minimum, maximum, and median. You will also show the total population of each region in each year. The data should be long-formatted and population-weighted.
 
 ```{r}
-
-# Perform the aggregation
 wdata3 <- wdata %>%
   group_by(region, date) %>%
   summarise(
@@ -129,7 +129,14 @@ wdata3 <- wdata3 %>%
   mutate_if(is.numeric, ~ round(., digits = 3))
 
 # Print the result
-print(wdata3)
+#print(wdata3)
+
+#wdata3 %>%
+  # kbl() %>%
+  # kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+rmarkdown:::paged_table(wdata3)
+
 
 ```
 
@@ -173,8 +180,13 @@ outliers_by_region_date <- outliers_summary %>%
     gini.out = sum(gini.ub == 1 | gini.lb == 1, na.rm = TRUE)
   )
 
-print(outliers_by_region_date) # This table shows the total number of outliers above and below 2.5 standard deviations from the mean.
+#print(outliers_by_region_date) # This table shows the total number of outliers above and below 2.5 standard deviations from the mean in every year by region.
 
+# outliers_by_region_date %>%
+#   kbl() %>%
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+rmarkdown:::paged_table(outliers_by_region_date)
        
 ```
 
@@ -208,8 +220,6 @@ plot <- ggplot(plotdata, aes(x = date, y = lifeex)) +
 
 
 print(plot)
-
-
 ```
 
 ## **Simulated data**
@@ -243,17 +253,18 @@ calculate_FGT <- function(data, line) {
     ) %>%
     mutate(Poverty_Line = line)
 }
-
 # Calculate the FGT indices for each poverty line and bind the results
 poverty_indicators<- poverty_lines %>%
   map_df(~ calculate_FGT(survey_data, .))
 
 # Print the combined results data frame
-print(poverty_indicators)
+#print(poverty_indicators)
 
+# poverty_indicators %>%
+#   kbl() %>%
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
-
-
+rmarkdown:::paged_table(poverty_indicators)
 ```
 
 ```{r}
@@ -265,8 +276,6 @@ extra2 <- ggplot(poverty_indicators, aes(group = Poverty_Line)) +
 
 print(extra2)
 
-
-
 ```
 
 ### **5. Lorenz curve**
@@ -275,7 +284,7 @@ The [Lorenz curve](https://en.wikipedia.org/wiki/Lorenz_curve) is a well-known r
 
 ```{r}
 
-# LC and Gini formula adapted from: https://github.com/PIP-Technical-Team/wbpip/blob/0cf9aa7bc168400ecf78ae5455f4c4247b841e9d/R/md_compute_lorenz.R
+#Source: https://github.com/PIP-Technical-Team/wbpip/blob/0cf9aa7bc168400ecf78ae5455f4c4247b841e9d/R/md_compute_lorenz.R
 
 data_lc <- survey_data
 
@@ -336,6 +345,12 @@ result_lc <- data_lc %>%
 result_lc <- result_lc %>%
   unnest(lorenz_curve)
 
+# result_lc %>%
+#   kbl() %>%
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+rmarkdown:::paged_table(result_lc)
+
 ```
 
 ```{r}
@@ -356,6 +371,8 @@ Without using any auxiliary package, create a function that estimate the [Gini c
 gini_data <- l_svy %>%
   map_df(~ as.data.frame(.x), .id = "year") %>%
   mutate(year = as.numeric(gsub("[A-Za-z]", "", year)))
+
+#Source: https://github.com/PIP-Technical-Team/wbpip/blob/0cf9aa7bc168400ecf78ae5455f4c4247b841e9d/R/md_compute_lorenz.R
 
 #Define a function to calculate gini coef for every year
 calculate_gini <- function(welfare, weight) {
@@ -384,6 +401,12 @@ results_gini <- gini_data %>%
   group_by(year) %>%
   summarise(Gini = calculate_gini(income, weight))
 
+# results_gini %>%
+#   kbl() %>%
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+rmarkdown:::paged_table(results_gini)
+
 ```
 
 ```{r}
@@ -394,4 +417,3 @@ extra4 <- ggplot(results_gini, aes(x = year, y = Gini)) +
 
 print(extra4)
 ```
-quarto publish gh-pages document.qmd
